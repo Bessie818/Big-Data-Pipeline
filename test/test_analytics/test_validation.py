@@ -14,7 +14,6 @@ def test_validate_weights_flags_negative_weight() -> None:
             "date": ["2026-01-31", "2026-01-31"],
             "symbol": ["AAA", "BBB"],
             "weight": [0.60, -0.10],
-            "leg": ["long", "long"],
         }
     )
     issues = validate_weights(df)
@@ -24,9 +23,10 @@ def test_validate_weights_flags_negative_weight() -> None:
 def test_validate_returns_flags_nan() -> None:
     df = pd.DataFrame(
         {
-            "date": ["2026-01-31", "2026-02-28"],
-            "dynamic_gross": [0.01, None],
-            "dynamic_net_20bp": [0.009, 0.005],
+            "date": ["2026-01-31", "2026-03-31"],
+            "gross_return": [0.01, None],
+            "net_return": [0.009, 0.005],
+            "exposure": [1.0, 0.8],
         }
     )
     issues = validate_returns(df)
@@ -36,7 +36,7 @@ def test_validate_returns_flags_nan() -> None:
 def test_validate_factors_flags_bad_zero_run() -> None:
     df = pd.DataFrame(
         {
-            "date": ["2026-01-31", "2026-02-28", "2026-03-31", "2026-04-30"],
+            "date": ["2026-01-31", "2026-03-31", "2026-05-31", "2026-07-31"],
             "symbol": ["AAA", "AAA", "AAA", "AAA"],
             "gics_sector": ["Tech", "Tech", "Tech", "Tech"],
             "momentum_z": [0.0, 0.0, 0.0, 0.0],
@@ -53,10 +53,11 @@ def test_validate_regime_flags_invalid_regime() -> None:
             "date": ["2026-01-31"],
             "vix_percentile": [1.2],
             "regime": ["weird"],
-            "w_mom": [0.25],
-            "w_val": [0.25],
-            "w_qual": [0.25],
-            "w_sent": [0.20],
+            "signal_200dma": [1],
+            "signal_12m": [0],
+            "signal_vix": [1],
+            "trigger_count": [1],  # should be 2, so this is inconsistent on purpose
+            "exposure": [0.8],
         }
     )
     issues = validate_regime(df)
