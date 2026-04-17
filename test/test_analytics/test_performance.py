@@ -39,6 +39,32 @@ def test_sharpe_ratio_nan_when_zero_volatility() -> None:
     assert np.isnan(result)
 
 
+def test_sharpe_ratio_uses_raw_return_volatility_with_rf() -> None:
+    dates = pd.to_datetime(["2026-01-31", "2026-03-31", "2026-05-31"])
+    returns = pd.Series([0.10, 0.00, 0.02], index=dates)
+    rf = pd.Series([0.01, 0.01, 0.01], index=dates)
+
+    result = sharpe_ratio(returns, rf=rf, periods_per_year=6)
+
+    excess = returns - rf
+    expected = (excess.mean() * 6) / (returns.std(ddof=1) * np.sqrt(6))
+    assert np.isclose(result, expected)
+
+
+def test_sharpe_ratio_uses_date_indexed_rf_alignment() -> None:
+    dates = pd.to_datetime(["2026-01-31", "2026-03-31", "2026-05-31"])
+    returns = pd.Series([0.03, 0.01, -0.02], index=dates)
+    rf = pd.Series([0.02, 0.02, 0.02], index=dates)
+
+    result = sharpe_ratio(returns, rf=rf, periods_per_year=6)
+
+    expected = ((returns - rf).mean() * 6) / (returns.std(ddof=1) * np.sqrt(6))
+    no_rf_like_result = (returns.mean() * 6) / (returns.std(ddof=1) * np.sqrt(6))
+
+    assert np.isclose(result, expected)
+    assert not np.isclose(result, no_rf_like_result)
+
+
 def test_total_return_matches_compounded_result() -> None:
     returns = pd.Series([0.10, -0.05])
     result = total_return(returns)

@@ -82,7 +82,7 @@ def sharpe_ratio(
     rf: Optional[pd.Series] = None,
     periods_per_year: int = PERIODS_PER_YEAR,
 ) -> float:
-    """Compute annualised Sharpe ratio using mean excess return / annualised vol."""
+    """Compute annualised Sharpe ratio using v6.5 reporting convention."""
     returns = _to_clean_series(returns)
     if returns.empty:
         return np.nan
@@ -96,7 +96,8 @@ def sharpe_ratio(
     if len(excess) < 2:
         return np.nan
 
-    ann_vol = annualized_volatility(excess, periods_per_year)
+    # Match v6.5 headline reporting: annualised excess mean over raw-return vol.
+    ann_vol = annualized_volatility(returns, periods_per_year)
     if pd.isna(ann_vol) or np.isclose(ann_vol, 0.0):
         return np.nan
 

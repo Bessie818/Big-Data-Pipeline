@@ -30,6 +30,7 @@ def main() -> None:
 
     df = pd.read_csv(path, parse_dates=["date"])
     df = df.sort_values("date")
+    metrics_df = df.set_index("date", drop=False)
 
     rf_series = load_rf_period_series(df["date"])
 
@@ -41,7 +42,7 @@ def main() -> None:
     print("\n=== Risk-free preview ===")
     print(rf_series.head())
 
-    metrics = compute_headline_metrics(df, rf_series=rf_series)
+    metrics = compute_headline_metrics(metrics_df, rf_series=rf_series)
     print("\n=== Headline metrics ===")
     print(metrics)
 
